@@ -110,8 +110,6 @@
                 </ul>
             </nav>
         </header>
-
-
         <section id="main" class="container">
             <header>
                 <h2>Journaling Chatbot</h2>
@@ -150,7 +148,7 @@
             document.getElementById("userInput").value = "";
             chatbox.scrollTop = chatbox.scrollHeight;
 
-            let response = await fetch("http://localhost:3000/webhook", {
+            let response = await fetch("https://us-central1-enterprise-web-systems.cloudfunctions.net/dialogflowWebhook", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ queryResult: { queryText: userInput } })
