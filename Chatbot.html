@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot – Reflectory</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .chat-container {
+            width: 100%;
+            max-width: 500px;
+            margin: 20px auto;
+            background: #f0f7f9;
+            border-radius: 15px;
+            box-shadow: 0px 8px 20px rgba(76, 149, 168, 0.15);
+            border: 2px solid #4c95a8;
+            overflow: hidden;
+        }
+        
+        .chat-header {
+            background: linear-gradient(135deg, #4c95a8, #3a7d8c);
+            color: #ffffff;
+            text-align: center;
+            padding: 18px;
+            font-size: 20px;
+            font-weight: 600;
+            font-family: 'Open Sans', sans-serif;
+        }
+        
+        .chat-box {
+            padding: 20px;
+            height: 350px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+            gap: 12px;
+        }
+        
+        .message {
+            max-width: 75%;
+            padding: 12px 18px;
+            border-radius: 18px;
+            margin: 5px 0;
+            font-size: 15px;
+            line-height: 1.5;
+            word-wrap: break-word;
+            animation: fadeIn 0.4s ease-in-out;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .user-message {
+            background: #4c95a8;
+            color: #ffffff;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .bot-message {
+            background: #e1f3f8;
+            color: #2c5561;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+        
+        .input-container {
+            display: flex;
+            padding: 15px;
+            border-top: 2px solid #e1f3f8;
+            background: #f0f7f9;
+        }
+        
+        .input-box {
+            flex: 1;
+            padding: 12px 18px;
+            border: 2px solid #4c95a8;
+            border-radius: 25px;
+            font-size: 15px;
+            outline: none;
+            background: #ffffff;
+            color: #2c5561;
+            transition: all 0.3s ease;
+        }
+        
+        .input-box:focus {
+            border-color: #3a7d8c;
+            box-shadow: 0 0 8px rgba(76, 149, 168, 0.2);
+        }
+        
+        .input-box::placeholder {
+            color: #89b5c3;
+        }
+        
+        .send-button {
+            margin-left: 12px;
+            background: #4c95a8;
+            color: #ffffff;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        
+        .send-button:hover {
+            background: #3a7d8c;
+            transform: translateY(-1px);
+        }
+        
+        .chat-box::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .chat-box::-webkit-scrollbar-thumb {
+            background: #4c95a8;
+            border-radius: 4px;
+        }
+        
+        .chat-box::-webkit-scrollbar-track {
+            background: #e1f3f8;
+            border-radius: 4px;
+        }
+
+        .content {
+            padding: 30px;
+            background: linear-gradient(145deg, #f0f7f9, #ffffff);
+            border-radius: 20px;
+            margin: 20px auto;
+            max-width: 800px;
+        }
+
+        .content h2 {
+            color: #2c5561;
+            margin-bottom: 15px;
+        }
+
+        .content p {
+            color: #4c95a8;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(8px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">Reflectory</div>
+        <ul>
+            <li><a href="Home.html">Home</a></li>
+            <li><a href="About.html">About</a></li>
+            <li><a href="Chatbot.html">Chatbot</a></li>
+            <li><a href="Contact.html">Contact</a></li>
+        </ul>
+    </nav>
+
+    <section class="content">
+        <h2>Smart Chatbot</h2>
+        <p>Our AI-powered chatbot offers real-time assistance and intuitive interactions, adapting to your needs and preferences.</p>
+        
+        <div class="chat-container">
+            <div class="chat-header">📖 Journaling AI Chatbot</div>
+            <div class="chat-box" id="chatbox"></div>
+            <div class="input-container">
+                <input type="text" id="userInput" class="input-box" placeholder="Type your message..." />
+                <button class="send-button" onclick="sendMessage()">➤</button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const DIALOGFLOW_CX_URL = 'YOUR_WEBHOOK_URL'; // Replace with your actual webhook URL
+        const PROJECT_ID = 'YOUR_PROJECT_ID';
+        const LOCATION = 'YOUR_LOCATION'; // e.g., 'global'
+        const AGENT_ID = 'YOUR_AGENT_ID';
+
+        async function sendToDialogflow(message) {
+            try {
+                const response = await fetch(DIALOGFLOW_CX_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        queryInput: {
+                            text: {
+                                text: message
+                            },
+                            languageCode: 'en'
+                        },
+                        projectId: PROJECT_ID,
+                        location: LOCATION,
+                        agentId: AGENT_ID
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                return data.queryResult.responseMessages[0].text.text[0];
+            } catch (error) {
+                console.error('Error:', error);
+                return 'Sorry, I encountered an error. Please try again.';
+            }
+        }
+
+        async function sendMessage() {
+            const userInput = document.getElementById('userInput');
+            const chatbox = document.getElementById('chatbox');
+            const message = userInput.value.trim();
+
+            if (message) {
+                // Add user message
+                const userDiv = document.createElement('div');
+                userDiv.className = 'message user-message';
+                userDiv.textContent = message;
+                chatbox.appendChild(userDiv);
+
+                // Clear input
+                userInput.value = '';
+
+                // Show loading indicator
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = 'message bot-message';
+                loadingDiv.textContent = '...';
+                chatbox.appendChild(loadingDiv);
+
+                // Get bot response
+                const botResponse = await sendToDialogflow(message);
+
+                // Remove loading indicator and add bot response
+                chatbox.removeChild(loadingDiv);
+                const botDiv = document.createElement('div');
+                botDiv.className = 'message bot-message';
+                botDiv.textContent = botResponse;
+                chatbox.appendChild(botDiv);
+
+                // Auto scroll to bottom
+                chatbox.scrollTop = chatbox.scrollHeight;
+            }
+        }
+
+        // Allow Enter key to send message
+        document.getElementById('userInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
