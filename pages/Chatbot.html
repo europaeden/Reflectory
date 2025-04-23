@@ -180,42 +180,34 @@
     </section>
 
     <script>
-        const DIALOGFLOW_CX_URL = 'https://015a-90-221-238-43.ngrok-free.app/webhook'; // Replace with your actual webhook URL
+        const DIALOGFLOW_CX_URL = 'https://happily-ample-phoenix.ngrok-free.app'; // Replace with your actual webhook URL
         const PROJECT_ID = 'singular-rope-436116-q7';
         const LOCATION = 'europe-west2'; // e.g., 'global'
         const AGENT_ID = '98fa5229-2882-48ff-a298-78dc460f5c52/';
 
         async function sendToDialogflow(message) {
             try {
-                const response = await fetch(DIALOGFLOW_CX_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        queryInput: {
-                            text: {
-                                text: message
-                            },
-                            languageCode: 'en'
-                        },
-                        projectId: PROJECT_ID,
-                        location: LOCATION,
-                        agentId: AGENT_ID
-                    })
-                });
+        const response = await fetch(DIALOGFLOW_CX_URL + '/webhook', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                text: message // keep it simple, just send text directly
+            })
+        });
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
-                return data.queryResult.responseMessages[0].text.text[0];
-            } catch (error) {
-                console.error('Error:', error);
-                return 'Sorry, I encountered an error. Please try again.';
-            }
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+
+        const data = await response.json();
+        return data.fulfillment_response.messages[0].text.text[0]; // CX webhook format
+    } catch (error) {
+        console.error('Error:', error);
+        return 'Sorry, I encountered an error. Please try again.';
+    }
+}
 
         async function sendMessage() {
             const userInput = document.getElementById('userInput');
