@@ -1,5 +1,4 @@
 const express = require('express');
-const { WebhookClient } = require('dialogflow-fulfillment');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
@@ -23,7 +22,7 @@ app.post('/webhook', async (req, res) => {
     const body = req.body;
     
     // Extract message and metadata
-    const intentName = body.intent?.displayName || '';
+    const intentName = req.body?.intentInfo?.displayName || '';
     const userMessage = body.text || body.queryInput?.text?.text || '';
     const sentiment = body.sentimentAnalysisResult || {};
     const score = sentiment.score || 0;
@@ -63,7 +62,7 @@ app.post('/webhook', async (req, res) => {
     });
 });
 
-const PORT = 80;
+const PORT = 8080;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT} - Visit http://localhost:${PORT}`);
 });
