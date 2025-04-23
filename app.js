@@ -1,37 +1,69 @@
 const express = require('express');
 const { WebhookClient } = require('dialogflow-fulfillment');
+const bodyParser = require('body-parser');
+const cors = require('cors');
 const path = require('path');
+
 const app = express();
 
-// Serve static files from 'pages' directory
+// Middleware
+app.use(bodyParser.json());
+app.use(cors());
 app.use(express.static(path.join(__dirname, 'pages')));
-// Serve static files from root directory (for styles.css)
 app.use(express.static(__dirname));
-app.use(express.json());
 
 // Serve Home.html as the default page
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'pages', 'Home.html'));
 });
 
-app.post('/webhook', (req, res) => {
-    const agent = new WebhookClient({ request: req, response: res });
+// Webhook endpoint
+app.post('/webhook', async (req, res) => {
+    console.log('Webhook request received:', JSON.stringify(req.body, null, 2));
+    const body = req.body;
+    
+    // Extract message and metadata
+    const intentName = body.intent?.displayName || '';
+    const userMessage = body.text || body.queryInput?.text?.text || '';
+    const sentiment = body.sentimentAnalysisResult || {};
+    const score = sentiment.score || 0;
+    const magnitude = sentiment.magnitude || 0;
 
-    function welcome(agent) {
-        agent.add('Welcome! How can I assist you?');
+    console.log('Intent:', intentName);
+    console.log('User Message:', userMessage);
+    console.log('Sentiment Score:', score, 'Magnitude:', magnitude);
+
+    let responseText = 'Thanks for sharing that. Can you tell me more?';
+
+    // Only apply sentiment analysis to specific intents
+    if (intentName === 'Daily Check-In' || intentName === 'Emotion Reflection') {
+        if (score < -0.25) {
+            responseText = "I'm really sorry you're feeling that way. Want to talk more about what's been bothering you?";
+        } else if (score > 0.3) {
+            responseText = "I'm glad to hear things are going well! Want to explore what's helped you lately?";
+        } else {
+            responseText = "Thanks for letting me know. Would you like to reflect a bit more?";
+        }
+    } else {
+        // Fallback or non-targeted intent
+        responseText = "Let's keep going. What would you like to talk about today?";
     }
 
-    function fallback(agent) {
-        agent.add('I didn’t understand that. Can you try again?');
-    }
-
-    let intentMap = new Map();
-    intentMap.set('Default Welcome Intent', welcome);
-    intentMap.set('Default Fallback Intent', fallback);
-
-    agent.handleRequest(intentMap);
+    // Send back to Dialogflow CX
+    res.json({
+        fulfillment_response: {
+            messages: [
+                {
+                    text: {
+                        text: [responseText]
+                    }
+                }
+            ]
+        }
+    });
 });
 
-app.listen(3000, () => {
-    console.log('Server running on port 3000 - Visit http://localhost:3000');
+const PORT = 80;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT} - Visit http://localhost:${PORT}`);
 });
