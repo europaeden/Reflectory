@@ -21,47 +21,43 @@ app.post('/webhook', async (req, res) => {
     console.log('Webhook request received:', JSON.stringify(req.body, null, 2));
     const body = req.body;
     
-    // Extract message and metadata
-    const intentName = req.body?.intentInfo?.displayName || '';
-    const userMessage = body.text || body.queryInput?.text?.text || '';
-    const sentiment = body.sentimentAnalysisResult || {};
-    const score = sentiment.score || 0;
-    const magnitude = sentiment.magnitude || 0;
-
-    console.log('Intent:', intentName);
+    // Extract message and metadata from Dialogflow CX format
+    const tag = body.fulfillmentInfo?.tag || '';
+    const userMessage = body.queryResult?.text || '';
+    const parameters = body.queryResult?.parameters || {};
+    const sessionInfo = body.sessionInfo || {};
+    
+    console.log('Tag:', tag);
     console.log('User Message:', userMessage);
-    console.log('Sentiment Score:', score, 'Magnitude:', magnitude);
+    console.log('Session:', sessionInfo.session);
 
-    let responseText = 'Thanks for sharing that. Can you tell me more?';
+    let responseText = 'Default response';
 
-    // Only apply sentiment analysis to specific intents
-    if (intentName === 'Daily Check-In' || intentName === 'Emotion Reflection') {
-        if (score < -0.25) {
-            responseText = "I'm really sorry you're feeling that way. Want to talk more about what's been bothering you?";
-        } else if (score > 0.3) {
-            responseText = "I'm glad to hear things are going well! Want to explore what's helped you lately?";
-        } else {
-            responseText = "Thanks for letting me know. Would you like to reflect a bit more?";
-        }
+    // Use tag instead of intentName for routing
+    if (tag === 'daily_checkin' || tag === 'emotion_reflection') {
+        responseText = "I hear you. How does that make you feel?";
+    } else if (tag === 'greeting') {
+        responseText = "Hello! How are you feeling today?";
     } else {
-        // Fallback or non-targeted intent
-        responseText = "Let's keep going. What would you like to talk about today?";
+        responseText = "I'm here to listen. What's on your mind?";
     }
 
-    // Send back to Dialogflow CX
+    // Dialogflow CX response format
     res.json({
-        fulfillment_response: {
-            messages: [
-                {
-                    text: {
-                        text: [responseText]
-                    }
+        fulfillmentResponse: {
+            messages: [{
+                text: {
+                    text: [responseText]
                 }
-            ]
+            }]
+        },
+        sessionInfo: {
+            parameters: {
+                lastMessage: userMessage
+            }
         }
     });
 });
-
 const PORT = 8080;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT} - Visit http://localhost:${PORT}`);

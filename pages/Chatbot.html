@@ -180,20 +180,35 @@
     </section>
 
     <script>
-        const DIALOGFLOW_CX_URL = 'https://happily-ample-phoenix.ngrok-free.app'; // Replace with your actual webhook URL
+        const DIALOGFLOW_CX_URL = 'https://happily-ample-phoenix.ngrok-free.app'; 
         const PROJECT_ID = 'singular-rope-436116-q7';
-        const LOCATION = 'europe-west2'; // e.g., 'global'
+        const LOCATION = 'europe-west2'; 
         const AGENT_ID = '98fa5229-2882-48ff-a298-78dc460f5c52/';
 
         async function sendToDialogflow(message) {
-            try {
+    try {
         const response = await fetch(DIALOGFLOW_CX_URL + '/webhook', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                text: message // keep it simple, just send text directly
+                detectIntentResponseId: "response-id",
+                queryResult: {
+                    text: message,
+                    languageCode: "en",
+                    parameters: {},
+                    intent: {
+                        name: "",
+                        displayName: ""
+                    }
+                },
+                fulfillmentInfo: {
+                    tag: "default"
+                },
+                sessionInfo: {
+                    session: "projects/singular-rope-436116-q7/locations/europe-west2/agents/98fa5229-2882-48ff-a298-78dc460f5c52/sessions/my-session"
+                }
             })
         });
 
@@ -202,7 +217,8 @@
         }
 
         const data = await response.json();
-        return data.fulfillment_response.messages[0].text.text[0]; // CX webhook format
+        console.log('Dialogflow Response:', data); // Debug logging
+        return data.fulfillmentResponse.messages[0].text.text[0];
     } catch (error) {
         console.error('Error:', error);
         return 'Sorry, I encountered an error. Please try again.';
