@@ -2,26 +2,97 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contact – Reflectory</title>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resources – Reflectory</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .resources-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .resources-table th, .resources-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .resources-table th {
+            background-color: #f5f5f5;
+        }
+        .resources-table tr:hover {
+            background-color: #f9f9f9;
+        }
+        .resources-table a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .resources-table a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-  <nav>
-    <div class="logo">Reflectory</div>
-    <ul>
-      <li><a href="Home.html">Home</a></li>
-      <li><a href="About.html">About</a></li>
-      <li><a href="Chatbot.html">Chatbot</a></li>
-      <li><a href="Contact.html">Contact</a></li>
-    </ul>
-  </nav>
+    <nav>
+        <div class="logo">Reflectory</div>
+        <ul>
+            <li><a href="Home.html">Home</a></li>
+            <li><a href="About.html">About</a></li>
+            <li><a href="Chatbot.html">Chatbot</a></li>
+            <li><a href="Contact.html">Resources</a></li>
+        </ul>
+    </nav>
 
-  <section class="content">
-    <h2>Contact Us</h2>
-    <p>Have questions or feedback? Get in touch with our support team to learn more about Reflectory and how it can work for you.</p>
-  </section>
+    <section class="content">
+        <h2>Mental Health Resources</h2>
+        <p>Here are some helpful organizations and resources that provide support for mental health and well-being:</p>
+        
+        <table class="resources-table">
+            <thead>
+                <tr>
+                    <th>Organization</th>
+                    <th>Description</th>
+                    <th>Contact Information</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Samaritans</td>
+                    <td>24/7 listening service for anyone in emotional distress</td>
+                    <td>
+                        Call: 116 123 (Free)<br>
+                        <a href="https://www.samaritans.org" target="_blank">www.samaritans.org</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Mind</td>
+                    <td>Mental health information and support</td>
+                    <td>
+                        Call: 0300 123 3393<br>
+                        <a href="https://www.mind.org.uk" target="_blank">www.mind.org.uk</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>NHS 111</td>
+                    <td>Non-emergency medical advice</td>
+                    <td>
+                        Call: 111<br>
+                        <a href="https://111.nhs.uk" target="_blank">111.nhs.uk</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>CALM</td>
+                    <td>Campaign Against Living Miserably - Crisis support</td>
+                    <td>
+                        Call: 0800 58 58 58<br>
+                        <a href="https://www.thecalmzone.net" target="_blank">www.thecalmzone.net</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p><strong>Note:</strong> If you're experiencing a mental health emergency, please call 999 or visit your nearest A&E department.</p>
+    </section>
 </body>
 </html>

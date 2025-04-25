@@ -68,6 +68,15 @@ nav ul li a:hover {
     margin-top: 2rem;
 }
 
+.buttons a {
+    text-decoration: none;
+    display: inline-block;
+}
+
+.buttons button {
+    cursor: pointer;
+}
+
 .btn-start, .btn-learn {
     padding: 12px 24px;
     border-radius: 25px;
