@@ -1,9 +1,20 @@
+require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
+const {SessionsClient} = require('@google-cloud/dialogflow-cx');
 
 const app = express();
+const client = new SessionsClient({
+    apiEndpoint: `${process.env.DIALOGFLOW_LOCATION}-dialogflow.googleapis.com`
+});
+
+// Configuration from environment variables
+const projectId = process.env.DIALOGFLOW_PROJECT_ID;
+const location = process.env.DIALOGFLOW_LOCATION;
+const agentId = process.env.DIALOGFLOW_AGENT_ID;
+const languageCode = 'en';
 
 // Middleware
 app.use(bodyParser.json());
@@ -21,43 +32,63 @@ app.post('/webhook', async (req, res) => {
     console.log('Webhook request received:', JSON.stringify(req.body, null, 2));
     const body = req.body;
     
-    // Extract message and metadata from Dialogflow CX format
-    const tag = body.fulfillmentInfo?.tag || '';
-    const userMessage = body.queryResult?.text || '';
-    const parameters = body.queryResult?.parameters || {};
-    const sessionInfo = body.sessionInfo || {};
-    
-    console.log('Tag:', tag);
-    console.log('User Message:', userMessage);
-    console.log('Session:', sessionInfo.session);
+    try {
+        const sessionId = Math.random().toString(36).substring(7);
+        const sessionPath = client.projectLocationAgentSessionPath(
+            projectId,
+            location,
+            agentId,
+            sessionId
+        );
 
-    let responseText = 'Default response';
-
-    // Use tag instead of intentName for routing
-    if (tag === 'daily_checkin' || tag === 'emotion_reflection') {
-        responseText = "I hear you. How does that make you feel?";
-    } else if (tag === 'greeting') {
-        responseText = "Hello! How are you feeling today?";
-    } else {
-        responseText = "I'm here to listen. What's on your mind?";
-    }
-
-    // Dialogflow CX response format
-    res.json({
-        fulfillmentResponse: {
-            messages: [{
+        const request = {
+            session: sessionPath,
+            queryInput: {
                 text: {
-                    text: [responseText]
-                }
-            }]
-        },
-        sessionInfo: {
-            parameters: {
-                lastMessage: userMessage
+                    text: body.queryResult.text
+                },
+                languageCode: 'en'
             }
-        }
-    });
+        };
+
+        const [response] = await client.detectIntent(request);
+        console.log('Dialogflow Response:', response);
+
+        // Extract the agent's response
+        let responseText = response.queryResult.responseMessages[0]?.text?.text[0] || 
+                          "I'm here to listen. What's on your mind?";
+
+        // Return response in Dialogflow CX webhook format
+        res.json({
+            fulfillmentResponse: {
+                messages: [{
+                    text: {
+                        text: [responseText]
+                    }
+                }]
+            },
+            sessionInfo: {
+                parameters: {
+                    currentPage: response.queryResult.currentPage?.displayName,
+                    matchType: response.queryResult.match?.matchType,
+                    confidence: response.queryResult.match?.confidence
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({
+            fulfillmentResponse: {
+                messages: [{
+                    text: {
+                        text: ["I'm having trouble processing that right now."]
+                    }
+                }]
+            }
+        });
+    }
 });
+
 const PORT = 8080;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT} - Visit http://localhost:${PORT}`);

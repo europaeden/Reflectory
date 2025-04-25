@@ -18,11 +18,13 @@
   },
   "homepage": "https://github.com/europaeden/Reflectory#readme",
   "dependencies": {
-    "axios": "^1.8.4",
-    "body-parser": "^1.20.3",
+    "@google-cloud/dialogflow-cx": "^3.0.0",
+    "express": "^4.18.2",
+    "dotenv": "^16.0.3",
     "cors": "^2.8.5",
     "dialogflow-fulfillment": "^0.5.0",
-    "express": "^4.21.2",
+    "axios": "^1.8.4",
+    "body-parser": "^1.20.3",
     "uuid": "^11.1.0"
   }
 }
