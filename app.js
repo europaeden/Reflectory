@@ -51,19 +51,21 @@ app.post('/webhook', async (req, res) => {
             }
         };
 
-        const [response] = await client.detectIntent(request);
-        console.log('Dialogflow Response:', response);
 
         // Extract the agent's response
-        let responseText = response.queryResult.responseMessages[0]?.text?.text[0] || 
-                          "I'm here to listen. What's on your mind?";
+        const [response] = await client.detectIntent(request);
+        for (const message of response.queryResult.responseMessages) {
+          if (message.text) {
+            console.log(`Agent Response: ${message.text.text}`);
+          }
+        }
 
         // Return response in Dialogflow CX webhook format
         res.json({
             fulfillmentResponse: {
                 messages: [{
                     text: {
-                        text: [responseText]
+                        text: [responseMessages]
                     }
                 }]
             },
